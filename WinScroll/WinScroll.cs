@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
+//using System.Diagnostics;
 
 namespace WinScroll
 {
@@ -35,7 +36,8 @@ namespace WinScroll
             InitializeComponent();
             Init();
 
-            SizeChanged += new System.EventHandler(formResize);
+            //SizeChanged += new System.EventHandler(formResize);
+            Layout += new LayoutEventHandler(formResize);
             notifyIcon.DoubleClick += new System.EventHandler(windowShow);
             optionsToolStripMenuItem.Click += new System.EventHandler(windowShow);
             exitToolStripMenuItem.Click += new System.EventHandler(trayExit);
@@ -164,9 +166,9 @@ namespace WinScroll
 
         private void windowShow(object sender, EventArgs e)
         {
-            Show();
             WindowState = FormWindowState.Normal;
             BringToFront();
+            Show();
         }
 
         private void trayExit(object sender, EventArgs e)
@@ -176,10 +178,12 @@ namespace WinScroll
 
         private void formResize(object sender, EventArgs e)
         {
+            //Debug.WriteLine(WindowState.ToString() + ", " + Visible.ToString());
             if(WindowState == FormWindowState.Minimized)
             {
                 Hide();
             }
+            //Debug.WriteLine(WindowState.ToString() + ", " + Visible.ToString());
         }
 
         private void aboutLinkClicked(object sender, EventArgs e)
@@ -239,19 +243,33 @@ namespace WinScroll
                 NativeMethods.GetCursorPos(out p);
                 Screen activeScreen = Screen.FromPoint(p);
 
+                int screenWidth = activeScreen.WorkingArea.Width;
+                int screenHeight = activeScreen.WorkingArea.Height;
+                /*
+                RegistryKey rk = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", false);
+                if(screenHeight != activeScreen.Bounds.Height)  //make sure the monitor we're on actually has the taskbar!
+                {
+                    if(rk != null && (int) rk.GetValue("TaskbarSmallIcons") == 1)
+                    {
+                        Debug.WriteLine((int)rk.GetValue("TaskbarSmallIcons"));
+                        //screenHeight += 2;  //windows seems to misreport the actual working area when small icons is enabled
+                        Debug.WriteLine(screenHeight);
+                    }
+                }*/
+
                 if((int)m.WParam == fullLeft)
                 {
-                    col = (activeScreen.WorkingArea.Width / (int)columns.Value);
-                    row = (activeScreen.WorkingArea.Height / (int)rows.Value);
+                    col = (screenWidth / (int)columns.Value);
+                    row = (screenHeight / (int)rows.Value);
                     w = col * (int)colsNum.Value;
-                    h = row * (int)rows.Value;
+                    h = (row * (int)rows.Value) + (screenHeight % (int)rows.Value);
                     x = activeScreen.Bounds.Left;   
                     y = 0;
                 }
                 else if((int)m.WParam == upperRight)
                 {
-                    col = (activeScreen.WorkingArea.Width / (int)columns.Value);
-                    row = (activeScreen.WorkingArea.Height / (int)rows.Value);
+                    col = (screenWidth / (int)columns.Value);
+                    row = (screenHeight / (int)rows.Value);
                     w = col * 3;
                     h = row * 5;
                     x = activeScreen.Bounds.Left + col * 9;
@@ -259,17 +277,17 @@ namespace WinScroll
                 }
                 else if((int)m.WParam == lowerRight)
                 {
-                    col = (activeScreen.WorkingArea.Width / (int)columns.Value);
-                    row = (activeScreen.WorkingArea.Height / (int)rows.Value);
+                    col = (screenWidth / (int)columns.Value);
+                    row = (screenHeight / (int)rows.Value);
                     w = col * 3;
-                    h = row * 3;
+                    h = (row * 3) + (screenHeight % (int)rows.Value);
                     x = activeScreen.Bounds.Left + col * 9;
                     y = row * 5;
                 }
                 else if((int)m.WParam == fullRight)
                 {
-                    col = (activeScreen.WorkingArea.Width / (int)columns.Value);
-                    row = (activeScreen.WorkingArea.Height / (int)rows.Value);
+                    col = (screenWidth / (int)columns.Value);
+                    row = (screenHeight / (int)rows.Value);
                     w = col * 3;
                     h = row * 8;
                     x = activeScreen.Bounds.Left + col * 9;
@@ -279,10 +297,11 @@ namespace WinScroll
             }
             else if(m.Msg == NativeMethods.WM_SHOWME)
             {
+                WindowState = FormWindowState.Maximized;    //once again, not quite sure why this is necessary, but setting the state to normal straight away doesn't unhide correctly.
                 Show();
-                WindowState = FormWindowState.Normal;
                 BringToFront();
                 TopMost = true;
+                WindowState = FormWindowState.Normal;
             }
             base.WndProc(ref m);
         }
