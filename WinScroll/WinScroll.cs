@@ -1,30 +1,38 @@
 ﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
-//using System.Diagnostics;
+using System.Diagnostics;
+using System.IO;
+//using Newtonsoft.Json;
 
 namespace WinScroll
 {
     public partial class WinScroll : Form
     {
-        private Timer timer;
+        private System.Windows.Forms.Timer timer;
         private Rectangle captureRectangle;
         private Point p = new Point();
 
+        private const string versionString = "0.3";
         private const string aboutURL = "http://www.github.com/Petethegoat";
+        //private const string apiURL = "https://api.github.com/repos/petethegoat/winscroll/releases/latest";
         private const string registry = "SOFTWARE\\WinScroll";
         private int fullLeft;
         private int upperRight;
         private int lowerRight;
         private int fullRight;
+        private int doubleUpper;
+        private int secondLower;
 
         public WinScroll()
         {
@@ -32,6 +40,9 @@ namespace WinScroll
             upperRight = "upper_right".GetHashCode();
             lowerRight = "lower_right".GetHashCode();
             fullRight = "full_right".GetHashCode();
+
+            doubleUpper = "double_upper".GetHashCode();
+            secondLower = "second_lower".GetHashCode();
 
             InitializeComponent();
             Init();
@@ -57,7 +68,7 @@ namespace WinScroll
 
         public void Init()
         {
-            timer = new Timer();
+            timer = new System.Windows.Forms.Timer();
             timer.Tick += new EventHandler(Tick);
             timer.Interval = 10;
 
@@ -89,11 +100,31 @@ namespace WinScroll
                     RegisterHotkeys();
                 }
             }
+
+            //allow us to be run from explorer's 'Run' - http://stackoverflow.com/a/4822749
+            rk = Registry.LocalMachine.CreateSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\winscroll.exe");
+            if(rk != null)
+            {
+                rk.SetValue("", Application.ExecutablePath);
+                rk.SetValue("Path", Path.GetDirectoryName(Application.ExecutablePath));
+            }
+
+            //check for updates!!!! wowowwwow
+            /*
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            using(WebClient c = new WebClient())
+            {
+                string data = c.DownloadString(apiURL);
+                var json = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(data);
+                string latestVersion = json["tag_name"];
+                Debug.WriteLine(latestVersion);
+            }
+            */
         }
 
         private void Tick(object sender, EventArgs e)
         {
-            NativeMethods.GetCursorPos  (out p);
+            NativeMethods.GetCursorPos(out p);
             labelCoords.Text = p.X.ToString() + ", " + p.Y.ToString();
             UpdateCapture(captureCheck.Checked);
         }
@@ -103,6 +134,7 @@ namespace WinScroll
             if(capture)
             {
                 NativeMethods.ClipCursor(ref captureRectangle);
+                NativeMethods.MoveWindow(Handle, (int) captureX.Value, (int) captureY.Value, 400, 220, true);
             }
             else
             {
@@ -218,6 +250,12 @@ namespace WinScroll
 
                 k = Keys.Control | Keys.Alt | Keys.Right;
                 Macro.RegisterHotKey(this, k, fullRight);
+
+                k = Keys.Control | Keys.Alt | Keys.NumPad0;
+                Macro.RegisterHotKey(this, k, doubleUpper);
+
+                k = Keys.Control | Keys.Alt | Keys.NumPad2;
+                Macro.RegisterHotKey(this, k, secondLower);
             }
             else
             {
@@ -225,8 +263,32 @@ namespace WinScroll
                 Macro.UnregisterHotKey(this, upperRight);
                 Macro.UnregisterHotKey(this, lowerRight);
                 Macro.UnregisterHotKey(this, fullRight);
+                Macro.UnregisterHotKey(this, doubleUpper);
+                Macro.UnregisterHotKey(this, secondLower);
             }
         }
+
+        /*
+        public static IntPtr WinGetHandle(string wName)
+        {
+            IntPtr hWnd = IntPtr.Zero;
+
+            foreach(Process pList in Process.GetProcesses())
+                if(pList.MainWindowTitle.Contains(wName))
+                    hWnd = pList.MainWindowHandle;
+
+            return hWnd;
+        }
+
+        public static int HandleGetName(IntPtr hWnd)
+        {
+            foreach(Process pList in Process.GetProcesses())
+                if(pList.MainWindowHandle == hWnd)
+                    return pList.Id;
+
+            return -1;
+        }
+        */
 
         protected override void WndProc(ref Message m)
         {
@@ -239,6 +301,15 @@ namespace WinScroll
                 int x = 0;
                 int y = 0;
                 IntPtr window = NativeMethods.GetForegroundWindow();
+
+                /*
+                Debug.Print(HandleGetName(window).ToString());
+                if(window.ToInt64() == 131262)  //don't move the start menu! - needs work, apparently these IDs aren't consistent
+                {
+                    return;
+                }
+                */
+                 
                 Point p;
                 NativeMethods.GetCursorPos(out p);
                 Screen activeScreen = Screen.FromPoint(p);
@@ -292,6 +363,24 @@ namespace WinScroll
                     h = row * 8;
                     x = activeScreen.Bounds.Left + col * 9;
                     y = 0;
+                }
+                else if((int)m.WParam == doubleUpper)
+                {
+                    col = (screenWidth / (int)columns.Value);
+                    row = (screenHeight / (int)rows.Value);
+                    w = col * 6;
+                    h = row * 5;
+                    x = activeScreen.Bounds.Left + col * 6;
+                    y = 0;
+                }
+                else if((int)m.WParam == secondLower)
+                {
+                    col = (screenWidth / (int)columns.Value);
+                    row = (screenHeight / (int)rows.Value);
+                    w = col * 3;
+                    h = (row * 3) + (screenHeight % (int)rows.Value);
+                    x = activeScreen.Bounds.Left + col * 6;
+                    y = row * 5;
                 }
                 NativeMethods.MoveWindow(window, x, y, w, h, true);
             }

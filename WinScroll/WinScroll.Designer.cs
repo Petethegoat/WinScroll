@@ -55,7 +55,6 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.columns = new System.Windows.Forms.NumericUpDown();
-            this.rows = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
@@ -63,6 +62,7 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rows = new System.Windows.Forms.NumericUpDown();
             this.options.SuspendLayout();
             this.credit.SuspendLayout();
             this.cursor.SuspendLayout();
@@ -75,8 +75,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.colsNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.rowsNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.columns)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.rows)).BeginInit();
             this.contextMenuStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.rows)).BeginInit();
             this.SuspendLayout();
             // 
             // options
@@ -98,7 +98,7 @@
             this.windowCheck.Location = new System.Drawing.Point(6, 88);
             this.windowCheck.Name = "windowCheck";
             this.windowCheck.Size = new System.Drawing.Size(105, 17);
-            this.windowCheck.TabIndex = 2;
+            this.windowCheck.TabIndex = 3;
             this.windowCheck.Text = "Enable snapping";
             this.tooltip.SetToolTip(this.windowCheck, "Enable window snapping hotkeys.");
             this.windowCheck.UseVisualStyleBackColor = true;
@@ -131,7 +131,7 @@
             this.captureCheck.Location = new System.Drawing.Point(6, 65);
             this.captureCheck.Name = "captureCheck";
             this.captureCheck.Size = new System.Drawing.Size(98, 17);
-            this.captureCheck.TabIndex = 0;
+            this.captureCheck.TabIndex = 2;
             this.captureCheck.Text = "Enable capture";
             this.tooltip.SetToolTip(this.captureCheck, "Prevent the cursor from leaving the specified area.");
             this.captureCheck.UseVisualStyleBackColor = true;
@@ -144,7 +144,7 @@
             this.credit.Size = new System.Drawing.Size(128, 40);
             this.credit.TabIndex = 1;
             this.credit.TabStop = false;
-            this.credit.Text = "WinScroll 0.1";
+            this.credit.Text = "WinScroll 0.3";
             // 
             // aboutLink
             // 
@@ -423,29 +423,6 @@
             0,
             0});
             // 
-            // rows
-            // 
-            this.rows.Enabled = false;
-            this.rows.Location = new System.Drawing.Point(56, 19);
-            this.rows.Maximum = new decimal(new int[] {
-            32,
-            0,
-            0,
-            0});
-            this.rows.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.rows.Name = "rows";
-            this.rows.Size = new System.Drawing.Size(40, 20);
-            this.rows.TabIndex = 11;
-            this.rows.Value = new decimal(new int[] {
-            8,
-            0,
-            0,
-            0});
-            // 
             // label6
             // 
             this.label6.AutoSize = true;
@@ -497,6 +474,29 @@
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             // 
+            // rows
+            // 
+            this.rows.Enabled = false;
+            this.rows.Location = new System.Drawing.Point(56, 19);
+            this.rows.Maximum = new decimal(new int[] {
+            32,
+            0,
+            0,
+            0});
+            this.rows.Minimum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.rows.Name = "rows";
+            this.rows.Size = new System.Drawing.Size(40, 20);
+            this.rows.TabIndex = 11;
+            this.rows.Value = new decimal(new int[] {
+            8,
+            0,
+            0,
+            0});
+            // 
             // WinScroll
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -529,8 +529,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.colsNum)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.rowsNum)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.columns)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.rows)).EndInit();
             this.contextMenuStrip.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.rows)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -563,13 +563,13 @@
         private System.Windows.Forms.CheckBox windowCheck;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
         private System.Windows.Forms.NumericUpDown columns;
-        private System.Windows.Forms.NumericUpDown rows;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.NumericUpDown colsNum;
         private System.Windows.Forms.NumericUpDown rowsNum;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.NumericUpDown rows;
     }
 }
 
