@@ -198,9 +198,7 @@ namespace WinScroll
 
         private void windowShow(object sender, EventArgs e)
         {
-            WindowState = FormWindowState.Normal;
-            BringToFront();
-            Show();
+            ShowWindow();
         }
 
         private void trayExit(object sender, EventArgs e)
@@ -250,12 +248,6 @@ namespace WinScroll
 
                 k = Keys.Control | Keys.Alt | Keys.Right;
                 Macro.RegisterHotKey(this, k, fullRight);
-
-                k = Keys.Control | Keys.Alt | Keys.NumPad0;
-                Macro.RegisterHotKey(this, k, doubleUpper);
-
-                k = Keys.Control | Keys.Alt | Keys.NumPad2;
-                Macro.RegisterHotKey(this, k, secondLower);
             }
             else
             {
@@ -263,8 +255,6 @@ namespace WinScroll
                 Macro.UnregisterHotKey(this, upperRight);
                 Macro.UnregisterHotKey(this, lowerRight);
                 Macro.UnregisterHotKey(this, fullRight);
-                Macro.UnregisterHotKey(this, doubleUpper);
-                Macro.UnregisterHotKey(this, secondLower);
             }
         }
 
@@ -345,6 +335,18 @@ namespace WinScroll
                     h = row * 5;
                     x = activeScreen.Bounds.Left + col * 9;
                     y = 0;
+
+                    Rect rect = new Rect();
+                    NativeMethods.GetWindowRect(window, ref rect);
+                    if(rect.Left == x && rect.Top == y && rect.Right == x + w && rect.Bottom == y + h)
+                    {
+                        col = (screenWidth / (int)columns.Value);
+                        row = (screenHeight / (int)rows.Value);
+                        w = col * 6;
+                        h = row * 5;
+                        x = activeScreen.Bounds.Left + col * 6;
+                        y = 0;
+                    }
                 }
                 else if((int)m.WParam == lowerRight)
                 {
@@ -354,6 +356,18 @@ namespace WinScroll
                     h = (row * 3) + (screenHeight % (int)rows.Value);
                     x = activeScreen.Bounds.Left + col * 9;
                     y = row * 5;
+
+                    Rect rect = new Rect();
+                    NativeMethods.GetWindowRect(window, ref rect);
+                    if(rect.Left == x && rect.Top == y && rect.Right == x + w && rect.Bottom == y + h)
+                    {
+                        col = (screenWidth / (int)columns.Value);
+                        row = (screenHeight / (int)rows.Value);
+                        w = col * 3;
+                        h = (row * 3) + (screenHeight % (int)rows.Value);
+                        x = activeScreen.Bounds.Left + col * 6;
+                        y = row * 5;
+                    }
                 }
                 else if((int)m.WParam == fullRight)
                 {
@@ -364,35 +378,22 @@ namespace WinScroll
                     x = activeScreen.Bounds.Left + col * 9;
                     y = 0;
                 }
-                else if((int)m.WParam == doubleUpper)
-                {
-                    col = (screenWidth / (int)columns.Value);
-                    row = (screenHeight / (int)rows.Value);
-                    w = col * 6;
-                    h = row * 5;
-                    x = activeScreen.Bounds.Left + col * 6;
-                    y = 0;
-                }
-                else if((int)m.WParam == secondLower)
-                {
-                    col = (screenWidth / (int)columns.Value);
-                    row = (screenHeight / (int)rows.Value);
-                    w = col * 3;
-                    h = (row * 3) + (screenHeight % (int)rows.Value);
-                    x = activeScreen.Bounds.Left + col * 6;
-                    y = row * 5;
-                }
                 NativeMethods.MoveWindow(window, x, y, w, h, true);
             }
             else if(m.Msg == NativeMethods.WM_SHOWME)
             {
-                WindowState = FormWindowState.Maximized;    //once again, not quite sure why this is necessary, but setting the state to normal straight away doesn't unhide correctly.
-                Show();
-                BringToFront();
-                TopMost = true;
-                WindowState = FormWindowState.Normal;
+                ShowWindow();
             }
             base.WndProc(ref m);
+        }
+
+        private void ShowWindow()
+        {
+            WindowState = FormWindowState.Maximized;    //once again, not quite sure why this is necessary, but setting the state to normal straight away doesn't unhide correctly.
+            Show();
+            BringToFront();
+            //TopMost = true;
+            WindowState = FormWindowState.Normal;
         }
     }
 }

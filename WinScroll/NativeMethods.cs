@@ -9,6 +9,27 @@ using Microsoft.Win32;
 
 namespace WinScroll
 {
+    public struct Rect
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+
+        public Rect(int l, int t, int r, int b)
+        {
+            Left = l;
+            Top = t;
+            Right = r;
+            Bottom = b;
+        }
+
+        public override string ToString()
+        {
+            return Left.ToString() + ", " + Top.ToString() + " : " + Right.ToString() + ", " + Bottom.ToString();
+        }
+    }
+
     public static class NativeMethods
     {
         public const int HWND_BROADCAST = 0xffff;
@@ -39,5 +60,8 @@ namespace WinScroll
 
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+
+        [DllImport("user32.dll")]
+        public static extern bool GetWindowRect(IntPtr hwnd, ref Rect rectangle);
     }
 }
