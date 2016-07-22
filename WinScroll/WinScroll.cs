@@ -34,12 +34,13 @@ namespace WinScroll
 
         private SnapLocation[] leftLocations = new SnapLocation[] { new SnapLocation(0,0,9,0) };
         private SnapLocation[] upLocations = new SnapLocation[] { new SnapLocation(9,0,3,5), new SnapLocation(6,0,6,5), new SnapLocation(6,0,3,5)};
-        private SnapLocation[] downLocations = new SnapLocation[] { new SnapLocation(9,5,3,3), new SnapLocation(6,5,6,3), new SnapLocation(6,5,3,3) };
+        private SnapLocation[] downLocations = new SnapLocation[] { new SnapLocation(9,5,3,3,true), new SnapLocation(6,5,6,3,true), new SnapLocation(6,5,3,3,true) };
         private SnapLocation[] rightLocations = new SnapLocation[] { new SnapLocation(9,0,3,0) };
 
         public struct SnapLocation
         {
             public int x, y, width, height;
+            public bool modulo;
 
             public SnapLocation(int c, int r, int w, int h)
             {
@@ -47,6 +48,15 @@ namespace WinScroll
                 y = r;
                 width = w;
                 height = h;
+                modulo = false;
+            }
+            public SnapLocation(int c, int r, int w, int h, bool m)
+            {
+                x = c;
+                y = r;
+                width = w;
+                height = h;
+                modulo = m;
             }
         }
 
@@ -340,7 +350,10 @@ namespace WinScroll
                     s = locations[i];
 
                     w = s.width == 0 ? screenWidth : col * s.width;
-                    h = s.height == 0 ? screenHeight : row * s.height;
+                    if(s.modulo)
+                        h = s.height == 0 ? screenHeight : (row * s.height) + screenHeight % row;
+                    else
+                        h = s.height == 0 ? screenHeight : row * s.height;
                     x = col * s.x + activeScreen.Bounds.Left;
                     y = row * s.y;
 
@@ -356,7 +369,10 @@ namespace WinScroll
                 s = locations[result];
 
                 w = s.width == 0 ? screenWidth : col * s.width;
-                h = s.height == 0 ? screenHeight : row * s.height;
+                if(s.modulo)
+                    h = s.height == 0 ? screenHeight : (row * s.height) + screenHeight % row;
+                else
+                    h = s.height == 0 ? screenHeight : row * s.height;
                 x = col * s.x + activeScreen.Bounds.Left;
                 y = row * s.y;
 
