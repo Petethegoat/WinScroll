@@ -23,26 +23,39 @@ namespace WinScroll
         private Rectangle captureRectangle;
         private Point p = new Point();
 
-        private const string versionString = "0.3";
+        private const string versionString = "0.4";
         private const string aboutURL = "http://www.github.com/Petethegoat";
         //private const string apiURL = "https://api.github.com/repos/petethegoat/winscroll/releases/latest";
         private const string registry = "SOFTWARE\\WinScroll";
-        private int fullLeft;
-        private int upperRight;
-        private int lowerRight;
-        private int fullRight;
-        private int doubleUpper;
-        private int secondLower;
+        private int leftArrow;
+        private int upArrow;
+        private int downArrow;
+        private int rightArrow;
+
+        private SnapLocation[] leftLocations = new SnapLocation[] { new SnapLocation(0,0,9,0) };
+        private SnapLocation[] upLocations = new SnapLocation[] { new SnapLocation(9,0,3,5), new SnapLocation(6,0,6,5), new SnapLocation(6,0,3,5)};
+        private SnapLocation[] downLocations = new SnapLocation[] { new SnapLocation(9,5,3,3), new SnapLocation(6,5,6,3), new SnapLocation(6,5,3,3) };
+        private SnapLocation[] rightLocations = new SnapLocation[] { new SnapLocation(9,0,3,0) };
+
+        public struct SnapLocation
+        {
+            public int x, y, width, height;
+
+            public SnapLocation(int c, int r, int w, int h)
+            {
+                x = c;
+                y = r;
+                width = w;
+                height = h;
+            }
+        }
 
         public WinScroll()
         {
-            fullLeft = "full_left".GetHashCode();
-            upperRight = "upper_right".GetHashCode();
-            lowerRight = "lower_right".GetHashCode();
-            fullRight = "full_right".GetHashCode();
-
-            doubleUpper = "double_upper".GetHashCode();
-            secondLower = "second_lower".GetHashCode();
+            leftArrow = "full_left".GetHashCode();
+            upArrow = "upper_right".GetHashCode();
+            downArrow = "lower_right".GetHashCode();
+            rightArrow = "full_right".GetHashCode();
 
             InitializeComponent();
             Init();
@@ -238,23 +251,23 @@ namespace WinScroll
             if(windowCheck.Checked)
             {
                 Keys k = Keys.Control | Keys.Alt | Keys.Left;
-                Macro.RegisterHotKey(this, k, fullLeft);
+                Macro.RegisterHotKey(this, k, leftArrow);
 
                 k = Keys.Control | Keys.Alt | Keys.Up;
-                Macro.RegisterHotKey(this, k, upperRight);
+                Macro.RegisterHotKey(this, k, upArrow);
 
                 k = Keys.Control | Keys.Alt | Keys.Down;
-                Macro.RegisterHotKey(this, k, lowerRight);
+                Macro.RegisterHotKey(this, k, downArrow);
 
                 k = Keys.Control | Keys.Alt | Keys.Right;
-                Macro.RegisterHotKey(this, k, fullRight);
+                Macro.RegisterHotKey(this, k, rightArrow);
             }
             else
             {
-                Macro.UnregisterHotKey(this, fullLeft);
-                Macro.UnregisterHotKey(this, upperRight);
-                Macro.UnregisterHotKey(this, lowerRight);
-                Macro.UnregisterHotKey(this, fullRight);
+                Macro.UnregisterHotKey(this, leftArrow);
+                Macro.UnregisterHotKey(this, upArrow);
+                Macro.UnregisterHotKey(this, downArrow);
+                Macro.UnregisterHotKey(this, rightArrow);
             }
         }
 
@@ -284,13 +297,22 @@ namespace WinScroll
         {
             if(m.Msg == Macro.WM_HOTKEY)
             {
-                int col;
-                int row;
+                Point p;
+                NativeMethods.GetCursorPos(out p);
+                Screen activeScreen = Screen.FromPoint(p);
+                int screenWidth = activeScreen.WorkingArea.Width;
+                int screenHeight = activeScreen.WorkingArea.Height;
+
+                int col = (screenWidth / (int)columns.Value);
+                int row = (screenHeight / (int)rows.Value);
                 int w = 640;
                 int h = 480;
                 int x = 0;
                 int y = 0;
                 IntPtr window = NativeMethods.GetForegroundWindow();
+
+                Rect rect = new Rect();
+                NativeMethods.GetWindowRect(window, ref rect);
 
                 /*
                 Debug.Print(HandleGetName(window).ToString());
@@ -299,85 +321,45 @@ namespace WinScroll
                     return;
                 }
                 */
-                 
-                Point p;
-                NativeMethods.GetCursorPos(out p);
-                Screen activeScreen = Screen.FromPoint(p);
 
-                int screenWidth = activeScreen.WorkingArea.Width;
-                int screenHeight = activeScreen.WorkingArea.Height;
-                /*
-                RegistryKey rk = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", false);
-                if(screenHeight != activeScreen.Bounds.Height)  //make sure the monitor we're on actually has the taskbar!
+                SnapLocation[] locations = leftLocations;
+
+                if((int)m.WParam == leftArrow)
+                    locations = leftLocations;
+                else if((int)m.WParam == upArrow)
+                    locations = upLocations;
+                else if((int)m.WParam == downArrow)
+                    locations = downLocations;
+                else if((int)m.WParam == rightArrow)
+                    locations = rightLocations;
+
+                SnapLocation s;
+                int result = 0;
+                for(int i = 0; i < locations.Length; i++)
                 {
-                    if(rk != null && (int) rk.GetValue("TaskbarSmallIcons") == 1)
+                    s = locations[i];
+
+                    w = s.width == 0 ? screenWidth : col * s.width;
+                    h = s.height == 0 ? screenHeight : row * s.height;
+                    x = col * s.x + activeScreen.Bounds.Left;
+                    y = row * s.y;
+
+                    if(rect.Left == x && rect.Top == y && rect.Right == w + x && rect.Bottom == h + y)
                     {
-                        Debug.WriteLine((int)rk.GetValue("TaskbarSmallIcons"));
-                        //screenHeight += 2;  //windows seems to misreport the actual working area when small icons is enabled
-                        Debug.WriteLine(screenHeight);
-                    }
-                }*/
-
-                if((int)m.WParam == fullLeft)
-                {
-                    col = (screenWidth / (int)columns.Value);
-                    row = (screenHeight / (int)rows.Value);
-                    w = col * (int)colsNum.Value;
-                    h = (row * (int)rows.Value) + (screenHeight % (int)rows.Value);
-                    x = activeScreen.Bounds.Left;   
-                    y = 0;
-                }
-                else if((int)m.WParam == upperRight)
-                {
-                    col = (screenWidth / (int)columns.Value);
-                    row = (screenHeight / (int)rows.Value);
-                    w = col * 3;
-                    h = row * 5;
-                    x = activeScreen.Bounds.Left + col * 9;
-                    y = 0;
-
-                    Rect rect = new Rect();
-                    NativeMethods.GetWindowRect(window, ref rect);
-                    if(rect.Left == x && rect.Top == y && rect.Right == x + w && rect.Bottom == y + h)
-                    {
-                        col = (screenWidth / (int)columns.Value);
-                        row = (screenHeight / (int)rows.Value);
-                        w = col * 6;
-                        h = row * 5;
-                        x = activeScreen.Bounds.Left + col * 6;
-                        y = 0;
+                        result = i + 1;
+                        break;
                     }
                 }
-                else if((int)m.WParam == lowerRight)
-                {
-                    col = (screenWidth / (int)columns.Value);
-                    row = (screenHeight / (int)rows.Value);
-                    w = col * 3;
-                    h = (row * 3) + (screenHeight % (int)rows.Value);
-                    x = activeScreen.Bounds.Left + col * 9;
-                    y = row * 5;
 
-                    Rect rect = new Rect();
-                    NativeMethods.GetWindowRect(window, ref rect);
-                    if(rect.Left == x && rect.Top == y && rect.Right == x + w && rect.Bottom == y + h)
-                    {
-                        col = (screenWidth / (int)columns.Value);
-                        row = (screenHeight / (int)rows.Value);
-                        w = col * 3;
-                        h = (row * 3) + (screenHeight % (int)rows.Value);
-                        x = activeScreen.Bounds.Left + col * 6;
-                        y = row * 5;
-                    }
-                }
-                else if((int)m.WParam == fullRight)
-                {
-                    col = (screenWidth / (int)columns.Value);
-                    row = (screenHeight / (int)rows.Value);
-                    w = col * 3;
-                    h = row * 8;
-                    x = activeScreen.Bounds.Left + col * 9;
-                    y = 0;
-                }
+                if(result >= locations.Length)
+                    result = 0;
+                s = locations[result];
+
+                w = s.width == 0 ? screenWidth : col * s.width;
+                h = s.height == 0 ? screenHeight : row * s.height;
+                x = col * s.x + activeScreen.Bounds.Left;
+                y = row * s.y;
+
                 NativeMethods.MoveWindow(window, x, y, w, h, true);
             }
             else if(m.Msg == NativeMethods.WM_SHOWME)
