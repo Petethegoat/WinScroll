@@ -146,7 +146,7 @@
             this.credit.Size = new System.Drawing.Size(128, 40);
             this.credit.TabIndex = 1;
             this.credit.TabStop = false;
-            this.credit.Text = "WinScroll 0.4";
+            this.credit.Text = "WinScroll 0.5";
             // 
             // aboutLink
             // 

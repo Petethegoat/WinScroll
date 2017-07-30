@@ -23,7 +23,7 @@ namespace WinScroll
         private Rectangle captureRectangle;
         private Point p = new Point();
 
-        private const string versionString = "0.4";
+        private const string versionString = "0.5";
         private const string aboutURL = "http://www.github.com/Petethegoat";
         //private const string apiURL = "https://api.github.com/repos/petethegoat/winscroll/releases/latest";
         private const string registry = "SOFTWARE\\WinScroll";
@@ -148,6 +148,7 @@ namespace WinScroll
             captureY.Value = Properties.Settings.Default.CaptureY;
             captureWidth.Value = Properties.Settings.Default.CaptureWidth;
             captureHeight.Value = Properties.Settings.Default.CaptureHeight;
+            UpdateCaptureRect();
         }
 
         private void Tick(object sender, EventArgs e)
@@ -192,6 +193,11 @@ namespace WinScroll
             {
                 captureHeight.Value = captureY.Value + 1;
             }
+            UpdateCaptureRect();
+        }
+
+        private void UpdateCaptureRect()
+        {
             captureRectangle = new Rectangle((int)captureX.Value, (int)captureY.Value, (int)captureWidth.Value, (int)captureHeight.Value);
         }
 
