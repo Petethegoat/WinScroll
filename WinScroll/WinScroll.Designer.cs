@@ -55,6 +55,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.columns = new System.Windows.Forms.NumericUpDown();
+            this.rows = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
@@ -62,7 +63,8 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.rows = new System.Windows.Forms.NumericUpDown();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
             this.options.SuspendLayout();
             this.credit.SuspendLayout();
             this.cursor.SuspendLayout();
@@ -75,8 +77,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.colsNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.rowsNum)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.columns)).BeginInit();
-            this.contextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.rows)).BeginInit();
+            this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // options
@@ -329,12 +331,14 @@
             this.window.Controls.Add(this.rows);
             this.window.Controls.Add(this.label6);
             this.window.Controls.Add(this.label5);
-            this.window.Location = new System.Drawing.Point(146, 91);
+            this.window.Enabled = false;
+            this.window.Location = new System.Drawing.Point(146, 146);
             this.window.Name = "window";
             this.window.Size = new System.Drawing.Size(226, 79);
             this.window.TabIndex = 3;
             this.window.TabStop = false;
             this.window.Text = "Window Snapping";
+            this.window.Visible = false;
             // 
             // colsNum
             // 
@@ -423,6 +427,29 @@
             0,
             0});
             // 
+            // rows
+            // 
+            this.rows.Enabled = false;
+            this.rows.Location = new System.Drawing.Point(56, 19);
+            this.rows.Maximum = new decimal(new int[] {
+            32,
+            0,
+            0,
+            0});
+            this.rows.Minimum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.rows.Name = "rows";
+            this.rows.Size = new System.Drawing.Size(40, 20);
+            this.rows.TabIndex = 11;
+            this.rows.Value = new decimal(new int[] {
+            8,
+            0,
+            0,
+            0});
+            // 
             // label6
             // 
             this.label6.AutoSize = true;
@@ -474,34 +501,31 @@
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             // 
-            // rows
+            // label9
             // 
-            this.rows.Enabled = false;
-            this.rows.Location = new System.Drawing.Point(56, 19);
-            this.rows.Maximum = new decimal(new int[] {
-            32,
-            0,
-            0,
-            0});
-            this.rows.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.rows.Name = "rows";
-            this.rows.Size = new System.Drawing.Size(40, 20);
-            this.rows.TabIndex = 11;
-            this.rows.Value = new decimal(new int[] {
-            8,
-            0,
-            0,
-            0});
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(152, 120);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(165, 13);
+            this.label9.TabIndex = 4;
+            this.label9.Text = "Contributions welcome on Github.";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(152, 98);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(155, 13);
+            this.label10.TabIndex = 5;
+            this.label10.Text = "Snapping options coming soon!";
             // 
             // WinScroll
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(384, 182);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.credit);
             this.Controls.Add(this.window);
             this.Controls.Add(this.cursor);
@@ -512,6 +536,7 @@
             this.Name = "WinScroll";
             this.ShowInTaskbar = false;
             this.Text = "WinScroll";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.OnClose);
             this.options.ResumeLayout(false);
             this.options.PerformLayout();
             this.credit.ResumeLayout(false);
@@ -529,9 +554,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.colsNum)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.rowsNum)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.columns)).EndInit();
-            this.contextMenuStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.rows)).EndInit();
+            this.contextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -570,6 +596,8 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown rows;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label10;
     }
 }
 

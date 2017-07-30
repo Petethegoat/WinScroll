@@ -143,6 +143,11 @@ namespace WinScroll
                 Debug.WriteLine(latestVersion);
             }
             */
+
+            captureX.Value = Properties.Settings.Default.CaptureX;
+            captureY.Value = Properties.Settings.Default.CaptureY;
+            captureWidth.Value = Properties.Settings.Default.CaptureWidth;
+            captureHeight.Value = Properties.Settings.Default.CaptureHeight;
         }
 
         private void Tick(object sender, EventArgs e)
@@ -390,8 +395,19 @@ namespace WinScroll
             WindowState = FormWindowState.Maximized;    //once again, not quite sure why this is necessary, but setting the state to normal straight away doesn't unhide correctly.
             Show();
             BringToFront();
-            //TopMost = true;
+            TopMost = true;     //ensure we're  right at the front!
+            TopMost = false;    //don't stay in front though, that'd be rude.
+            Activate();         //and make sure we're focused after we've been called.
             WindowState = FormWindowState.Normal;
+        }
+
+        private void OnClose(object sender, FormClosedEventArgs e)
+        {
+            Properties.Settings.Default.CaptureX = captureX.Value;
+            Properties.Settings.Default.CaptureY = captureY.Value;
+            Properties.Settings.Default.CaptureWidth = captureWidth.Value;
+            Properties.Settings.Default.CaptureHeight = captureHeight.Value;
+            Properties.Settings.Default.Save();
         }
     }
 }
